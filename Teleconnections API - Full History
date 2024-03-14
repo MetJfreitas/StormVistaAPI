@@ -1,0 +1,38 @@
+import os
+import urllib.request
+import time
+import datetime
+
+## Configurações ##
+apikey = 'ADD YOUR KEY HERE'
+baseURL = 'https://api.stormvistawxmodels.com/v1/model-data/'
+output_folder = os.path.join(os.path.dirname(__file__), "Teleconections Full History")  # Pasta de saída para salvar os arquivos no mesmo local do código
+
+def downloadFile(url, filename):
+    downloaded = False
+    while not downloaded:
+        try:
+            urllib.request.urlretrieve(url, filename)
+        except:
+            print('Arquivo não encontrado... aguardando {url}'.format(url=url))
+            time.sleep(3)  # Espera 3 s antes de tentar novamente
+        else:
+            print('Download concluído: {filename}'.format(filename=filename))
+            downloaded = True
+
+# Configurações comuns
+fileDate = datetime.datetime(2021, 3, 15, 0)  # Y,m,d,h
+
+# Criar a pasta de saída se não existir
+os.makedirs(output_folder, exist_ok=True)
+
+# Baixar o histórico de índices de teleconexão e ENSO
+indices = ['aao', 'abna', 'ao', 'ea', 'eawr', 'epo', 'nao', 'pna', 'scand', 'soi', 'wpo', 'mjo', 'glaam_tend',
+           'glaam_anom', 'nhaam_tend', 'nhaam_anom', 'shaam_tend', 'shaam_anom']
+
+for index in indices:
+    endpoint = 'history/{index}-full-history.csv'.format(index=index)
+    url = '{baseURL}{endpoint}?apikey={apikey}'.format(baseURL=baseURL, endpoint=endpoint, apikey=apikey)
+    filename = os.path.join(output_folder, 'historico_{index}.csv'.format(index=index))
+
+    downloadFile(url, filename)
